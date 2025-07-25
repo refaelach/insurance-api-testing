@@ -1,5 +1,11 @@
 # Insurance API Security Testing App
 
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue?logo=docker)](https://www.docker.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Security Testing](https://img.shields.io/badge/Security-Testing-red)](https://owasp.org/www-project-api-security-top-10/)
+[![F5 XC Ready](https://img.shields.io/badge/F5%20XC-Ready-green)](https://www.f5.com/cloud/products/application-services)
+[![GitHub](https://img.shields.io/badge/GitHub-Repository-black?logo=github)](https://github.com/refaelach/insurance-api-testing)
+
 A Dockerized demo application for security testing of common API vulnerabilities, including OWASP API Security Top 10. Built with React, Node.js, and designed for integration with F5 XC Load Balancer.
 
 ## 🎯 Purpose
@@ -75,7 +81,7 @@ This project provides a **realistic insurance application** with **intentional v
 ### 1. Clone and Deploy
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/insurance-api-testing.git
+git clone https://github.com/refaelach/insurance-api-testing.git
 cd insurance-api-testing
 
 # Build and start all services
