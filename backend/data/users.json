@@ -1,0 +1,407 @@
+[
+  {
+    "username": "admin1",
+    "password": "adminpass",
+    "role": "admin"
+  },
+  {
+    "username": "admin2",
+    "password": "admin123",
+    "role": "admin"
+  },
+  {
+    "username": "user1",
+    "password": "userpass",
+    "role": "user"
+  },
+  {
+    "username": "user2",
+    "password": "user123",
+    "role": "user"
+  },
+  {
+    "username": "john.smith",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "sarah.johnson",
+    "password": "sarah2024",
+    "role": "user"
+  },
+  {
+    "username": "admin.user",
+    "password": "admin@insurance",
+    "role": "admin"
+  },
+  {
+    "username": "mike.davis",
+    "password": "mike123",
+    "role": "user"
+  },
+  {
+    "username": "emily.wilson",
+    "password": "emily2024",
+    "role": "user"
+  },
+  {
+    "username": "weakuser1",
+    "password": "123",
+    "role": "user"
+  },
+  {
+    "username": "weakuser2",
+    "password": "123456",
+    "role": "user"
+  },
+  {
+    "username": "weakuser3",
+    "password": "password",
+    "role": "user"
+  },
+  {
+    "username": "weakuser4",
+    "password": "a",
+    "role": "user"
+  },
+  {
+    "username": "testuser1",
+    "password": "123",
+    "role": "user"
+  },
+  {
+    "username": "testuser2",
+    "password": "123456",
+    "role": "user"
+  },
+  {
+    "username": "testuser3",
+    "password": "password",
+    "role": "user"
+  },
+  {
+    "username": "testuser4",
+    "password": "admin",
+    "role": "user"
+  },
+  {
+    "username": "testuser5",
+    "password": "qwerty",
+    "role": "user"
+  },
+  {
+    "username": "testuser6",
+    "password": "abc123",
+    "role": "user"
+  },
+  {
+    "username": "testuser7",
+    "password": "test",
+    "role": "user"
+  },
+  {
+    "username": "testuser8",
+    "password": "a",
+    "role": "user"
+  },
+  {
+    "username": "testuser10",
+    "password": "12345",
+    "role": "user"
+  },
+  {
+    "username": "testuser11",
+    "password": "pass",
+    "role": "user"
+  },
+  {
+    "username": "testuser12",
+    "password": "user",
+    "role": "user"
+  },
+  {
+    "username": "testuser13",
+    "password": "letmein",
+    "role": "user"
+  },
+  {
+    "username": "testuser14",
+    "password": "welcome",
+    "role": "user"
+  },
+  {
+    "username": "testuser15",
+    "password": "monkey",
+    "role": "user"
+  },
+  {
+    "username": "testuser16",
+    "password": "dragon",
+    "role": "user"
+  },
+  {
+    "username": "testuser17",
+    "password": "master",
+    "role": "user"
+  },
+  {
+    "username": "testuser18",
+    "password": "football",
+    "role": "user"
+  },
+  {
+    "username": "testuser19",
+    "password": "baseball",
+    "role": "user"
+  },
+  {
+    "username": "testuser20",
+    "password": "shadow",
+    "role": "user"
+  },
+  {
+    "username": "e2etest",
+    "password": "123",
+    "role": "user"
+  },
+  {
+    "username": "debugtest",
+    "password": "123",
+    "role": "user"
+  },
+  {
+    "username": "test",
+    "password": "123456",
+    "role": "user"
+  },
+  {
+    "username": "newuser",
+    "password": "123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753422742718",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753422745001",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753422814089",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753422817385",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753422831476",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753422845477",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753422848859",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753422855792",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753422860181",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753422872265",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753422884454",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753422946977",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753423030769",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753423034267",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753423037336",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753423040312",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753423041073",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753423046574",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753423073596",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753423232182",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753423317298",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753423318173",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753423440520",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753423451693",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753423458045",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753423458896",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753423467230",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753423473493",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753423488167",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753423543081",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753423546476",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753423550229",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753423553780",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753423590067",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753423591091",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753423614554",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753423615642",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753423634456",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753423645585",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753423671449",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753423689028",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753423694913",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753423784172",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753423878973",
+    "password": "password123",
+    "role": "user"
+  },
+  {
+    "username": "trafficuser1753423899167",
+    "password": "password123",
+    "role": "user"
+  }
+]

@@ -1,0 +1,23 @@
+{
+  "name": "traffic-simulator",
+  "version": "1.0.0",
+  "description": "Traffic simulation for Insurance API Testing Project",
+  "main": "traffic_simulator.js",
+  "scripts": {
+    "start": "node traffic_simulator.js",
+    "simulate": "node traffic_simulator.js",
+    "test": "node -e \"require('./traffic_simulator.js').sendRequest({method:'GET',url:'/api/health',description:'Test'})\""
+  },
+  "dependencies": {
+    "axios": "^1.6.0"
+  },
+  "keywords": [
+    "traffic",
+    "simulation",
+    "api",
+    "testing",
+    "load-testing"
+  ],
+  "author": "Insurance API Testing Project",
+  "license": "MIT"
+} 

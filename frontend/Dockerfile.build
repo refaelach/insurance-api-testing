@@ -1,0 +1,20 @@
+# Use Node.js 18 as base image for building
+FROM node:18-alpine
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies (including dev dependencies for build)
+RUN npm ci
+
+# Copy source code
+COPY . .
+
+# Build the app
+RUN npm run build
+
+# The built files will be in /app/dist
+# This container is used only for building, not serving 
