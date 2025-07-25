@@ -25,7 +25,7 @@ This project provides a **realistic insurance application** with **intentional v
 - **Token Management**: Secure JWT token storage and validation
 
 ### Vulnerable Endpoints (For Testing)
-- **BOLA (Broken Object Level Authorization)**: `/api/customers/me` - JWT bypass
+- **BUA (Broken User Authentication)**: `/api/customers/me` - JWT bypass
 - **SSRF (Server-Side Request Forgery)**: `/api/documents/preview` - URL fetching
 - **Verbose Error Messages**: Detailed error responses for testing
 - **Weak Authentication**: Multiple weak password accounts
