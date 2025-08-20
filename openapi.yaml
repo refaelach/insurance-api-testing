@@ -1,0 +1,1077 @@
+openapi: 3.0.3
+info:
+  title: Insurance API
+  description: |
+    A comprehensive insurance management API with both secure and vulnerable endpoints for security testing purposes.
+    
+    **⚠️ Security Notice**: This API contains intentionally vulnerable endpoints for educational and testing purposes.
+    Do not deploy this in production environments.
+    
+    ## Available Endpoints
+    
+    ### Authentication
+    - User registration and login
+    - JWT-based authentication
+    - Profile management
+    
+    ### Insurance Operations
+    - Policy management and search
+    - Claims processing
+    - Coverage details
+    - Document preview
+    
+    ### Administrative Functions
+    - User management (admin only)
+    - System statistics and reports
+    - Settings configuration
+    
+    ### Security Testing Endpoints
+    - Various intentionally vulnerable endpoints for OWASP API security testing
+    
+  version: 1.0.0
+  contact:
+    name: API Security Testing Team
+    email: security@example.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3001/api
+    description: Local development server
+  - url: https://apitestinginsurance.azurewebsites.net/api
+    description: Azure production server
+  - url: https://dummyinsuranceapp.xyz/api
+    description: Production server
+
+tags:
+  - name: Authentication
+    description: User authentication and authorization endpoints
+  - name: Policies
+    description: Insurance policy management operations
+  - name: Claims
+    description: Insurance claims processing
+  - name: Coverage
+    description: Insurance coverage details and management
+  - name: Admin
+    description: Administrative functions (admin role required)
+  - name: Security Testing
+    description: Intentionally vulnerable endpoints for security testing
+  - name: Health
+    description: System health and status endpoints
+
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Health Check
+      description: Check if the API is running and healthy
+      operationId: getHealth
+      responses:
+        '200':
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Insurance API Backend is running"
+                  timestamp:
+                    type: string
+                    format: date-time
+                  version:
+                    type: string
+                    example: "1.0.0"
+
+  /register:
+    post:
+      tags:
+        - Authentication
+      summary: User Registration
+      description: Register a new user account
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                  description: Unique username for the account
+                  example: "john.doe"
+                password:
+                  type: string
+                  description: User password
+                  example: "password123"
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Registration successful"
+                  token:
+                    type: string
+                    description: JWT authentication token
+                  user:
+                    $ref: '#/components/schemas/User'
+                  expiresIn:
+                    type: string
+                    example: "15m"
+        '400':
+          description: Missing required fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Username already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: User Login
+      description: Authenticate user and receive JWT token
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                  description: Username for authentication
+                  example: "john.doe"
+                password:
+                  type: string
+                  description: User password
+                  example: "password123"
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Login successful"
+                  token:
+                    type: string
+                    description: JWT authentication token
+                  user:
+                    $ref: '#/components/schemas/User'
+                  expiresIn:
+                    type: string
+                    example: "15m"
+        '400':
+          description: Missing credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Authentication failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/profile:
+    get:
+      tags:
+        - Authentication
+      summary: Get User Profile
+      description: Retrieve current user profile information
+      operationId: getUserProfile
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Profile retrieved successfully"
+                  user:
+                    $ref: '#/components/schemas/User'
+                  tokenInfo:
+                    type: object
+                    properties:
+                      issuedAt:
+                        type: string
+                        format: date-time
+                      expiresAt:
+                        type: string
+                        format: date-time
+        '401':
+          description: Unauthorized - Invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/users:
+    get:
+      tags:
+        - Admin
+      summary: List All Users
+      description: Retrieve list of all users (admin role required)
+      operationId: listUsers
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Users retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Users retrieved successfully"
+                  users:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+                  count:
+                    type: integer
+                    description: Total number of users
+        '401':
+          description: Unauthorized - Invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden - Admin role required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /policies/categories:
+    get:
+      tags:
+        - Policies
+      summary: Get Policy Categories
+      description: Retrieve available insurance policy types
+      operationId: getPolicyCategories
+      responses:
+        '200':
+          description: Policy categories retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                example: ["Auto", "Home", "Health", "Travel", "Pet", "Life", "Business", "Motorcycle", "Boat", "RV"]
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /user/notifications:
+    get:
+      tags:
+        - User
+      summary: Get User Notifications
+      description: Retrieve user notifications and alerts
+      operationId: getUserNotifications
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Notifications retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Notification'
+        '401':
+          description: Unauthorized - Invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /claims/estimate:
+    post:
+      tags:
+        - Claims
+      summary: Submit Claim Estimate
+      description: Submit a claim estimate request
+      operationId: submitClaimEstimate
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - policyId
+                - incidentType
+                - estimatedDamage
+              properties:
+                policyId:
+                  type: string
+                  description: Policy identifier
+                  example: "INS-123456"
+                incidentType:
+                  type: string
+                  description: Type of incident
+                  example: "Collision"
+                estimatedDamage:
+                  type: number
+                  description: Estimated damage amount
+                  minimum: 0
+                  example: 2500.00
+      responses:
+        '201':
+          description: Claim estimate submitted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClaimEstimate'
+        '400':
+          description: Missing or invalid required fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized - Invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /coverage/details:
+    get:
+      tags:
+        - Coverage
+      summary: Get Coverage Details
+      description: Retrieve user's active coverage summary
+      operationId: getCoverageDetails
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Coverage details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CoverageDetails'
+        '401':
+          description: Unauthorized - Invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # Security Testing Endpoints (Intentionally Vulnerable)
+  /customers/me:
+    get:
+      tags:
+        - Security Testing
+      summary: Get Customer Profile (Vulnerable)
+      description: |
+        **⚠️ VULNERABLE ENDPOINT**: This endpoint uses JWT decode instead of verify,
+        making it vulnerable to signature bypass attacks.
+        
+        Retrieve customer profile information based on JWT token.
+      operationId: getCustomerProfile
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Customer profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerProfile'
+        '401':
+          description: Unauthorized - Invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /accounts/overview:
+    get:
+      tags:
+        - Security Testing
+      summary: Get Account Overview (Vulnerable)
+      description: |
+        **⚠️ VULNERABLE ENDPOINT**: This endpoint accepts expired tokens,
+        making it vulnerable to expired token attacks.
+        
+        Retrieve account overview information.
+      operationId: getAccountOverview
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Account overview retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountOverview'
+        '401':
+          description: Unauthorized - Invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /policies/search:
+    get:
+      tags:
+        - Security Testing
+      summary: Search Policies (Vulnerable)
+      description: |
+        **⚠️ VULNERABLE ENDPOINT**: This endpoint is vulnerable to excessive record retrieval
+        with no pagination limits enforced.
+        
+        Search and retrieve policies based on query parameters.
+      operationId: searchPolicies
+      parameters:
+        - name: query
+          in: query
+          description: Search query string
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: Page number for pagination
+          required: false
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: per_page
+          in: query
+          description: Number of records per page
+          required: false
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+      responses:
+        '200':
+          description: Policies retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicySearchResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /admin/reports:
+    get:
+      tags:
+        - Admin
+      summary: Get Admin Reports
+      description: Retrieve administrative reports (admin role required)
+      operationId: getAdminReports
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Admin reports retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminReports'
+        '401':
+          description: Unauthorized - Invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden - Admin role required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token for authentication
+
+  schemas:
+    User:
+      type: object
+      properties:
+        username:
+          type: string
+          description: Unique username
+          example: "john.doe"
+        role:
+          type: string
+          enum: [user, admin]
+          description: User role
+          example: "user"
+      required:
+        - username
+        - role
+
+    Notification:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Notification identifier
+          example: 1
+        type:
+          type: string
+          enum: [policy, payment, claim, system]
+          description: Type of notification
+          example: "policy"
+        message:
+          type: string
+          description: Notification message
+          example: "Your policy INS-123456 will expire in 15 days."
+        timestamp:
+          type: string
+          format: date-time
+          description: When the notification was created
+        read:
+          type: boolean
+          description: Whether the notification has been read
+          example: false
+      required:
+        - id
+        - type
+        - message
+        - timestamp
+        - read
+
+    ClaimEstimate:
+      type: object
+      properties:
+        claimId:
+          type: string
+          description: Generated claim identifier
+          example: "CLM-2024-0001"
+        status:
+          type: string
+          description: Current status of the claim
+          example: "estimate-received"
+        submittedBy:
+          type: string
+          description: Username of the person who submitted the claim
+          example: "john.doe"
+        submittedAt:
+          type: string
+          format: date-time
+          description: When the claim was submitted
+        policyId:
+          type: string
+          description: Associated policy identifier
+          example: "INS-123456"
+        incidentType:
+          type: string
+          description: Type of incident
+          example: "Collision"
+        estimatedDamage:
+          type: number
+          description: Estimated damage amount
+          example: 2500.00
+        nextSteps:
+          type: array
+          items:
+            type: string
+          description: List of next steps for the claim
+          example: ["A claims adjuster will review your estimate within 24-48 hours"]
+      required:
+        - claimId
+        - status
+        - submittedBy
+        - submittedAt
+        - policyId
+        - incidentType
+        - estimatedDamage
+        - nextSteps
+
+    CoverageDetails:
+      type: object
+      properties:
+        policyNumber:
+          type: string
+          description: Policy number
+          example: "INS-123456"
+        policyType:
+          type: string
+          description: Type of insurance policy
+          example: "Auto Insurance"
+        effectiveDate:
+          type: string
+          format: date
+          description: When the policy becomes effective
+          example: "2024-01-01"
+        expirationDate:
+          type: string
+          format: date
+          description: When the policy expires
+          example: "2025-01-01"
+        status:
+          type: string
+          description: Current status of the policy
+          example: "Active"
+        coverage:
+          type: object
+          properties:
+            liability:
+              type: object
+              properties:
+                bodilyInjury:
+                  type: string
+                  example: "$100,000 per person / $300,000 per accident"
+                propertyDamage:
+                  type: string
+                  example: "$50,000 per accident"
+            collision:
+              type: object
+              properties:
+                deductible:
+                  type: string
+                  example: "$500"
+                coverage:
+                  type: string
+                  example: "Yes"
+            comprehensive:
+              type: object
+              properties:
+                deductible:
+                  type: string
+                  example: "$500"
+                coverage:
+                  type: string
+                  example: "Yes"
+        premium:
+          type: object
+          properties:
+            monthly:
+              type: string
+              example: "$125.00"
+            annual:
+              type: string
+              example: "$1,500.00"
+            nextPayment:
+              type: string
+              format: date
+              example: "2024-02-01"
+        vehicle:
+          type: object
+          properties:
+            year:
+              type: string
+              example: "2020"
+            make:
+              type: string
+              example: "Toyota"
+            model:
+              type: string
+              example: "Camry"
+            vin:
+              type: string
+              example: "1HGBH41JXMN109186"
+      required:
+        - policyNumber
+        - policyType
+        - effectiveDate
+        - expirationDate
+        - status
+        - coverage
+        - premium
+        - vehicle
+
+    CustomerProfile:
+      type: object
+      properties:
+        username:
+          type: string
+          description: Customer username
+          example: "john.doe"
+        role:
+          type: string
+          description: Customer role
+          example: "user"
+        fullName:
+          type: string
+          description: Customer's full name
+          example: "John Doe"
+        email:
+          type: string
+          format: email
+          description: Customer's email address
+          example: "john.doe@example.com"
+        phone:
+          type: string
+          description: Customer's phone number
+          example: "+1-555-123-4567"
+        dateOfBirth:
+          type: string
+          format: date
+          description: Customer's date of birth
+          example: "1985-03-15"
+        address:
+          type: object
+          properties:
+            street:
+              type: string
+              example: "123 Main Street"
+            city:
+              type: string
+              example: "Anytown"
+            state:
+              type: string
+              example: "CA"
+            zipCode:
+              type: string
+              example: "90210"
+      required:
+        - username
+        - role
+        - fullName
+        - email
+        - phone
+        - dateOfBirth
+        - address
+
+    AccountOverview:
+      type: object
+      properties:
+        accountType:
+          type: string
+          description: Type of account
+          example: "Standard"
+        renewalDate:
+          type: string
+          format: date
+          description: Account renewal date
+          example: "2024-12-31"
+        monthlyPremium:
+          type: number
+          description: Monthly premium amount
+          example: 149.99
+        paymentMethod:
+          type: object
+          properties:
+            last4:
+              type: string
+              example: "1234"
+            expiry:
+              type: string
+              example: "12/25"
+        recentTransactions:
+          type: array
+          items:
+            type: object
+            properties:
+              description:
+                type: string
+                example: "Monthly Premium Payment"
+              date:
+                type: string
+                format: date
+                example: "2024-01-15"
+              amount:
+                type: string
+                example: "149.99"
+              type:
+                type: string
+                enum: [debit, credit]
+                example: "debit"
+              status:
+                type: string
+                example: "Completed"
+        paperlessBilling:
+          type: boolean
+          example: true
+        autoPay:
+          type: boolean
+          example: true
+        emailNotifications:
+          type: boolean
+          example: true
+      required:
+        - accountType
+        - renewalDate
+        - monthlyPremium
+        - paymentMethod
+        - recentTransactions
+        - paperlessBilling
+        - autoPay
+        - emailNotifications
+
+    PolicySearchResponse:
+      type: object
+      properties:
+        policies:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 1
+              policyNumber:
+                type: string
+                example: "POL-000001"
+              holderName:
+                type: string
+                example: "John Smith"
+              status:
+                type: string
+                example: "Active"
+              coverage:
+                type: string
+                example: "Auto"
+              expiresOn:
+                type: string
+                format: date
+                example: "2025-01-01"
+        pagination:
+          type: object
+          properties:
+            page:
+              type: integer
+              example: 1
+            per_page:
+              type: integer
+              example: 10
+            total:
+              type: integer
+              example: 1000
+            totalPages:
+              type: integer
+              example: 100
+        searchQuery:
+          type: string
+          description: The search query used
+          example: "John"
+        timestamp:
+          type: string
+          format: date-time
+          description: When the search was performed
+      required:
+        - policies
+        - pagination
+        - searchQuery
+        - timestamp
+
+    AdminReports:
+      type: object
+      properties:
+        monthlyRevenue:
+          type: object
+          properties:
+            total:
+              type: string
+              example: "$1.2M"
+            policies:
+              type: integer
+              example: 2340
+            claims:
+              type: integer
+              example: 89
+            netProfit:
+              type: string
+              example: "$450K"
+        userActivity:
+          type: object
+          properties:
+            activeUsers:
+              type: integer
+              example: 892
+            newRegistrations:
+              type: integer
+              example: 45
+            loginAttempts:
+              type: integer
+              example: 1234
+            failedLogins:
+              type: integer
+              example: 23
+        systemMetrics:
+          type: object
+          properties:
+            uptime:
+              type: string
+              example: "99.9%"
+            responseTime:
+              type: string
+              example: "120ms"
+            databaseConnections:
+              type: integer
+              example: 45
+            cacheHitRate:
+              type: string
+              example: "87%"
+        securityReport:
+          type: object
+          properties:
+            suspiciousActivities:
+              type: integer
+              example: 12
+            blockedIPs:
+              type: integer
+              example: 8
+            failedAuthAttempts:
+              type: integer
+              example: 156
+            lastSecurityScan:
+              type: string
+              format: date-time
+              example: "2024-01-15T08:00:00Z"
+        generatedAt:
+          type: string
+          format: date-time
+          description: When the report was generated
+        reportPeriod:
+          type: string
+          description: The period this report covers
+          example: "January 2024"
+      required:
+        - monthlyRevenue
+        - userActivity
+        - systemMetrics
+        - securityReport
+        - generatedAt
+        - reportPeriod
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error type or code
+          example: "Validation Error"
+        message:
+          type: string
+          description: Human-readable error message
+          example: "Missing required field: username"
+        code:
+          type: string
+          description: Error code for programmatic handling
+          example: "MISSING_FIELD"
+        timestamp:
+          type: string
+          format: date-time
+          description: When the error occurred
+        requestId:
+          type: string
+          description: Unique request identifier for debugging
+          example: "req-1705315200000"
+      required:
+        - error
+        - message
+
+security:
+  - BearerAuth: [] 

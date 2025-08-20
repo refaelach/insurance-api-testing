@@ -1,5 +1,5 @@
-# Use Node.js 18 as base image
-FROM node:18-alpine
+# Build stage
+FROM node:20-alpine AS build
 
 # Set working directory
 WORKDIR /app
@@ -7,20 +7,29 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies (including dev dependencies for build)
+# Install dependencies
 RUN npm ci
 
-# Copy source code
+# Copy app source code
 COPY . .
 
-# Build the app
+# Build static files with Vite
 RUN npm run build
 
-# Install serve to run the built app
-RUN npm install -g serve
+# Production stage - just the built files
+FROM nginx:alpine AS production
 
-# Expose port 5174
-EXPOSE 5174
+# Copy the built files to nginx's default directory
+COPY --from=build /app/dist /usr/share/nginx/html
 
-# Start the app
-CMD ["serve", "-s", "dist", "-l", "5174"] 
+# Copy nginx configuration
+COPY nginx-simple.conf /etc/nginx/nginx.conf
+
+# Remove the default.conf that conflicts with our custom configuration
+RUN rm -f /etc/nginx/conf.d/default.conf
+
+# Expose port 80
+EXPOSE 80
+
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]

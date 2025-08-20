@@ -168,7 +168,7 @@ const response = await fetch(getApiUrl('api/admin/reports'), {
 
 ### **Authentication Endpoints**
 - ✅ `POST /api/auth/login` - Returns JWT token
-- ✅ `POST /api/auth/register` - Accepts weak passwords
+- ✅ `POST /api/register` - Accepts weak passwords
 - ✅ `GET /api/auth/profile` - Returns user profile
 
 ### **Vulnerable Endpoints**

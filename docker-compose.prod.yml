@@ -46,7 +46,7 @@ services:
     depends_on:
       - nginx
     environment:
-      - TRAFFIC_BASE_URL=http://nginx
+      - TRAFFIC_BASE_URL=http://ves-io-2d518437-f18f-4558-bee5-a29c359b999e.ac.vh.ves.io
       - SIMULATION_DURATION=5
       - REQUEST_INTERVAL=15000
       - CONCURRENT_USERS=8

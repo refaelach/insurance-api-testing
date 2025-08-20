@@ -2,7 +2,7 @@ const axios = require('axios');
 const crypto = require('crypto');
 
 // Configuration
-const BASE_URL = process.env.TRAFFIC_BASE_URL || 'http://nginx';
+const BASE_URL = process.env.TRAFFIC_BASE_URL || 'http://ves-io-0a931dd2-673d-400a-9b4c-4f36313085d9.crt.ac.vh.volterra.us';
 const SIMULATION_DURATION = parseInt(process.env.SIMULATION_DURATION) || 5; // minutes
 const REQUEST_INTERVAL = parseInt(process.env.REQUEST_INTERVAL) || 15000; // 15 seconds
 const CONCURRENT_USERS = parseInt(process.env.CONCURRENT_USERS) || 8;
@@ -57,13 +57,13 @@ const ENDPOINTS = [
     // Public endpoints (no auth required)
     { method: 'GET', url: '/', weight: 25, requiresAuth: false, description: 'Frontend homepage' },
     { method: 'GET', url: '/login', weight: 15, requiresAuth: false, description: 'Login page' },
-    { method: 'GET', url: '/register', weight: 10, requiresAuth: false, description: 'Registration page' },
+
     { method: 'GET', url: '/api/health', weight: 8, requiresAuth: false, description: 'Health check' },
     { method: 'POST', url: '/api/auth/login', weight: 20, requiresAuth: false, description: 'User login', data: () => ({
         username: REAL_USER_ACCOUNTS[Math.floor(Math.random() * REAL_USER_ACCOUNTS.length)].username,
         password: REAL_USER_ACCOUNTS[Math.floor(Math.random() * REAL_USER_ACCOUNTS.length)].password
     })},
-    { method: 'POST', url: '/api/auth/register', weight: 5, requiresAuth: false, description: 'User registration', data: () => ({
+    { method: 'POST', url: '/api/auth/register', weight: 30, requiresAuth: false, description: 'User registration', data: () => ({
         username: `trafficuser${Date.now()}`,
         password: 'password123'
     })},
@@ -91,7 +91,7 @@ const ENDPOINTS = [
     // Admin-only endpoints (require admin authentication)
     { method: 'GET', url: '/api/admin/stats', weight: 5, requiresAuth: true, adminOnly: true, description: 'Admin statistics' },
     { method: 'GET', url: '/api/admin/settings', weight: 5, requiresAuth: true, adminOnly: true, description: 'Admin settings' },
-    { method: 'PATCH', url: '/api/admin/settings', weight: 3, requiresAuth: true, adminOnly: true, description: 'Update admin settings', data: () => ({
+    { method: 'PUT', url: '/api/admin/settings', weight: 25, requiresAuth: true, adminOnly: true, description: 'Update admin settings', data: () => ({
         maintenance: Math.random() > 0.5,
         debug: Math.random() > 0.5
     })},
@@ -203,7 +203,7 @@ function isTokenExpired(token) {
 async function refreshUserSession(user) {
     const session = userSessions.get(user.username);
     if (session && session.token && isTokenExpired(session.token)) {
-        console.log(`🔄 Token expired for ${user.username}, refreshing session...`);
+        console.log(`🔄 Token expired for ${user.username}, clearing session and retrying login...`);
         userSessions.delete(user.username);
         stats.authenticatedUsers.delete(user.username);
         return await loginUser(user);
@@ -222,8 +222,9 @@ function getRandomEndpoint(user) {
             // User is authenticated, exclude login/register endpoints
             availableEndpoints = ENDPOINTS.filter(ep => 
                 !ep.url.includes('/auth/login') && 
-                !ep.url.includes('/auth/register')
+                !ep.url.includes('/api/auth/register')
             );
+            
         }
     }
     
@@ -285,6 +286,61 @@ function generateRequestData(endpoint, user) {
     }
 
     return requestData;
+}
+
+// Force a registration request (runs once per cycle)
+async function registerNewUser() {
+    const startTime = Date.now();
+    const headers = {
+        'User-Agent': USER_AGENTS[Math.floor(Math.random() * USER_AGENTS.length)],
+        'X-Forwarded-For': IP_ADDRESSES[Math.floor(Math.random() * IP_ADDRESSES.length)],
+        'Content-Type': 'application/json'
+    };
+    const data = {
+        username: `trafficuser${Date.now()}`,
+        password: 'password123'
+    };
+
+    try {
+        const response = await axios.post(`${BASE_URL}/api/auth/register`, data, { headers, timeout: 10000 });
+        const responseTime = Date.now() - startTime;
+
+        stats.totalRequests++;
+        stats.successfulRequests++;
+        stats.responseTimes.push(responseTime);
+        stats.publicRequests++;
+
+        if (!stats.endpoints['/api/auth/register']) {
+            stats.endpoints['/api/auth/register'] = { success: 0, failed: 0 };
+        }
+        stats.endpoints['/api/auth/register'].success++;
+
+        if (!stats.userAgents[headers['User-Agent']]) {
+            stats.userAgents[headers['User-Agent']] = 0;
+        }
+        stats.userAgents[headers['User-Agent']]++;
+
+        if (!stats.ipAddresses[headers['X-Forwarded-For']]) {
+            stats.ipAddresses[headers['X-Forwarded-For']] = 0;
+        }
+        stats.ipAddresses[headers['X-Forwarded-For']]++;
+
+        console.log(`[${new Date().toISOString()}] ✅ POST /api/auth/register - ${response.status} (${responseTime}ms) - anonymous - Forced user registration`);
+    } catch (error) {
+        const responseTime = Date.now() - startTime;
+
+        stats.totalRequests++;
+        stats.failedRequests++;
+        stats.responseTimes.push(responseTime);
+        stats.publicRequests++;
+
+        if (!stats.endpoints['/api/auth/register']) {
+            stats.endpoints['/api/auth/register'] = { success: 0, failed: 0 };
+        }
+        stats.endpoints['/api/auth/register'].failed++;
+
+        console.log(`[${new Date().toISOString()}] ❌ POST /api/auth/register - ${error.response?.status || 'NETWORK_ERROR'} (${responseTime}ms) - anonymous - Forced user registration`);
+    }
 }
 
 // Make a single request
@@ -492,6 +548,9 @@ async function simulateTraffic() {
         const userPromises = selectedUsers.map(user => 
             simulateUser(user, MAX_REQUESTS_PER_USER)
         );
+
+        // Force at least one registration per cycle
+        userPromises.push(registerNewUser());
         
         // Wait for all users to complete their requests
         await Promise.all(userPromises);

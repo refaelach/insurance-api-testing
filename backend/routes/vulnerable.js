@@ -222,164 +222,45 @@ router.get('/admin/settings', (req, res) => {
   }
 });
 
-// POST /api/support/contact - Verbose Error Message Disclosure (API8:2023)
-// This endpoint exposes detailed error messages including stack traces and internal paths
+// POST /api/support/contact - Missing Authentication on Destructive Endpoint (API1:2023)
+// This endpoint allows contact form submission without authentication
 router.post('/support/contact', (req, res) => {
-  try {
-    // 🚨 VULNERABLE: Exposes detailed error messages with stack traces
-    
-    // Check for missing fields
-    if (!req.body) {
-      throw new Error('Request body is missing');
-    }
-    
-    const { name, email, message } = req.body;
-    
-    // Validate required fields with verbose error messages
-    if (!name) {
-      const error = new Error('Missing required field: name');
-      error.code = 'MISSING_NAME';
-      error.file = '/app/controllers/contact.js';
-      error.line = 34;
-      throw error;
-    }
-    
-    if (!email) {
-      const error = new Error('Missing required field: email');
-      error.code = 'MISSING_EMAIL';
-      error.file = '/app/controllers/contact.js';
-      error.line = 38;
-      throw error;
-    }
-    
-    if (!message) {
-      const error = new Error('Missing required field: message');
-      error.code = 'MISSING_MESSAGE';
-      error.file = '/app/controllers/contact.js';
-      error.line = 42;
-      throw error;
-    }
-    
-    // Validate email format with verbose error
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      const error = new Error('Invalid email format provided');
-      error.code = 'INVALID_EMAIL';
-      error.file = '/app/validators/email.js';
-      error.line = 15;
-      error.details = {
-        providedEmail: email,
-        expectedFormat: 'user@domain.com',
-        validationRegex: '/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/'
-      };
-      throw error;
-    }
-    
-    // Simulate database error for certain conditions
-    if (email.includes('test@error.com')) {
-      const dbError = new Error('Database connection failed');
-      dbError.code = 'DB_CONNECTION_ERROR';
-      dbError.file = '/app/database/postgresql.js';
-      dbError.line = 127;
-      dbError.stackTrace = `Error: connection to database failed
-    at Connection.connect (/app/node_modules/pg/lib/connection.js:127:15)
-    at Pool.connect (/app/node_modules/pg/lib/pool.js:45:12)
-    at Object.query (/app/database/postgresql.js:127:8)
-    at ContactController.save (/app/controllers/contact.js:67:12)
-    at Layer.handle [as handle_request] (/app/node_modules/express/lib/router/layer.js:95:5)
-    at next (/app/node_modules/express/lib/router/route.js:137:13)
-    at Route.dispatch (/app/node_modules/express/lib/router/route.js:112:34)
-    at /app/node_modules/express/lib/router/index.js:635:15
-    at Function.process_params (/app/node_modules/express/lib/router/index.js:689:32)
-    at next (/app/node_modules/express/lib/router/index.js:640:5)
-    at /app/middleware/logger.js:23:7
-    at /app/middleware/auth.js:45:12)`;
-      dbError.databaseError = 'ERROR: connection to server at "db-insurance-prod.company.com" (10.0.0.15), port 5432 failed: FATAL: password authentication failed for user "insurance_user"';
-      throw dbError;
-    }
-    
-    // Simulate SQL injection error
-    if (message.includes("' OR '1'='1")) {
-      const sqlError = new Error('SQL query execution failed');
-      sqlError.code = 'SQL_ERROR';
-      sqlError.file = '/app/database/queries.js';
-      sqlError.line = 89;
-      sqlError.stackTrace = `QueryFailedError: Query failed
-    at Query.run (/app/node_modules/sequelize/lib/dialects/postgres/query.js:89:15)
-    at async Contact.save (/app/models/contact.js:45:12)
-    at async ContactController.submitContact (/app/controllers/contact.js:78:23)
-    at Layer.handle [as handle_request] (/app/node_modules/express/lib/router/layer.js:95:5)`;
-      sqlError.sqlQuery = "INSERT INTO contacts (name, email, message) VALUES ('John', 'john@test.com', '' OR '1'='1')";
-      sqlError.databaseError = 'ERROR: syntax error at or near "OR"\n  Position: 67 in query: INSERT INTO contacts (name, email, message) VALUES (\'John\', \'john@test.com\', \'\' OR \'1\'=\'1\')';
-      throw sqlError;
-    }
-    
-    // Simulate file system error
-    if (name.includes('admin')) {
-      const fsError = new Error('File system access denied');
-      fsError.code = 'FS_ACCESS_DENIED';
-      fsError.file = '/app/utils/fileLogger.js';
-      fsError.line = 156;
-      fsError.stackTrace = `Error: EACCES: permission denied, open '/var/log/insurance/contact.log'
-    at Object.openSync (fs.js:476:3)
-    at Object.writeFileSync (fs.js:1567:35)
-    at FileLogger.log (/app/utils/fileLogger.js:156:12)
-    at ContactController.submitContact (/app/controllers/contact.js:92:8)
-    at Layer.handle [as handle_request] (/app/node_modules/express/lib/router/layer.js:95:5)`;
-      fsError.filePath = '/var/log/insurance/contact.log';
-      fsError.permission = 'EACCES';
-      throw fsError;
-    }
-    
-    // Success response
-    res.status(200).json({
-      message: 'Contact form submitted successfully',
-      ticketId: `TKT-${Date.now()}`,
-      submittedAt: new Date().toISOString()
+  // 🚨 VULNERABLE: No authentication check - anyone can submit contact forms
+  
+  // Check for missing fields
+  if (!req.body) {
+    return res.status(400).json({
+      error: 'Request body is missing',
+      message: 'Please provide contact information'
     });
-    
-  } catch (error) {
-    // 🚨 VULNERABLE: Expose detailed error information
-    const errorResponse = {
-      error: error.message,
-      code: error.code || 'UNKNOWN_ERROR',
-      timestamp: new Date().toISOString(),
-      requestId: `req-${Date.now()}`,
-      stackTrace: error.stack || error.stackTrace || 'No stack trace available',
-      file: error.file || 'Unknown file',
-      line: error.line || 'Unknown line'
-    };
-    
-    // Add database-specific error details
-    if (error.databaseError) {
-      errorResponse.databaseError = error.databaseError;
-    }
-    
-    if (error.sqlQuery) {
-      errorResponse.sqlQuery = error.sqlQuery;
-    }
-    
-    if (error.filePath) {
-      errorResponse.filePath = error.filePath;
-    }
-    
-    if (error.permission) {
-      errorResponse.permission = error.permission;
-    }
-    
-    if (error.details) {
-      errorResponse.details = error.details;
-    }
-    
-    // Add debug headers
-    res.set({
-      'X-Debug-Info': 'true',
-      'X-Error-Code': error.code || 'UNKNOWN',
-      'X-Request-ID': errorResponse.requestId,
-      'X-Server-Time': new Date().toISOString()
-    });
-    
-    res.status(500).json(errorResponse);
   }
+  
+  const { name, email, message } = req.body;
+  
+  // Validate required fields
+  if (!name || !email || !message) {
+    return res.status(400).json({
+      error: 'Missing required fields',
+      message: 'Name, email, and message are required'
+    });
+  }
+  
+  // Validate email format
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return res.status(400).json({
+      error: 'Invalid email format',
+      message: 'Please provide a valid email address'
+    });
+  }
+  
+  // Success response - no authentication required
+  res.status(200).json({
+    message: 'Contact form submitted successfully',
+    ticketId: `TKT-${Date.now()}`,
+    submittedAt: new Date().toISOString(),
+    submittedBy: 'anonymous', // Shows no authentication was required
+    vulnerability: 'Missing authentication on contact endpoint'
+  });
 });
 
 // POST /api/documents/preview - SSRF via Document Preview (API7:2023)
@@ -426,10 +307,10 @@ router.post('/documents/preview', async (req, res) => {
   }
 });
 
-// PATCH /api/admin/settings - Mass Assignment Privilege Escalation (API6:2023)
+// PUT /api/admin/settings - Mass Assignment Privilege Escalation (API6:2023)
 // This endpoint is vulnerable to mass assignment - accepts and stores unexpected fields
 // 🚨 VULNERABLE: Should be admin-only but standard users can access it
-router.patch('/admin/settings', async (req, res) => {
+router.put('/admin/settings', async (req, res) => {
   try {
     const token = req.headers.authorization?.split(' ')[1];
     
@@ -443,41 +324,46 @@ router.patch('/admin/settings', async (req, res) => {
     // Verify JWT token
     const decoded = jwt.verify(token, JWT_SECRET);
     console.log('🔍 User updating admin settings:', decoded.username, 'Role:', decoded.role);
-    
-    // 🚨 VULNERABLE: No role check - standard users can access admin settings
-    // In a secure implementation, this should require admin role
-    // if (decoded.role !== 'admin') {
-    //   return res.status(403).json({ error: 'Admin access required' });
-    // }
+
+    // 🚨 VULNERABLE: Authorization influenced by client-supplied fields (mass assignment)
+    // If the caller injects { isAdmin: true } or { role: 'admin' } in the body,
+    // treat the request as admin even if the user is not an admin by role.
+    const incoming = { ...req.body };
+    const requestedIsAdmin = incoming.isAdmin === true || incoming.role === 'admin';
+    const effectiveRole = requestedIsAdmin ? 'admin' : decoded.role;
+
+    // Deny access to regular users unless they injected admin fields above
+    if (effectiveRole !== 'admin') {
+      return res.status(403).json({
+        error: 'Access denied',
+        message: 'Admin privileges required to access settings',
+        code: 'ADMIN_ACCESS_REQUIRED'
+      });
+    }
     
     // 🚨 VULNERABLE: Accept ALL fields from request body without validation
-    // This allows mass assignment attacks - malicious fields are stored
     const userSettings = {
-      ...req.body, // 🚨 VULNERABLE: No field filtering or validation
+      ...incoming, // 🚨 No field filtering or validation
       updatedBy: decoded.username,
       updatedAt: new Date().toISOString()
     };
     
     console.log('🔍 Mass Assignment - Storing all fields:', userSettings);
     
-    // 🚨 VULNERABLE: Store all fields including malicious ones
-    // In a real app, this would be saved to database
+    // 🚨 VULNERABLE: Store all fields including malicious ones (simulated)
     const mockUserSettings = {
       [decoded.username]: userSettings
     };
     
-    // Simulate storage (in real app, this would be database write)
     console.log('🔍 Stored admin settings:', JSON.stringify(mockUserSettings, null, 2));
     
-    // 🚨 VULNERABLE: Return all fields including malicious ones
-    // This confirms the mass assignment vulnerability
     return res.status(200).json({
       message: 'Admin settings updated successfully',
       settings: userSettings,
       user: {
         username: decoded.username,
-        role: userSettings.role || decoded.role, // 🚨 VULNERABLE: Role can be overwritten
-        isAdmin: userSettings.isAdmin || false // 🚨 VULNERABLE: isAdmin can be set
+        role: userSettings.role || effectiveRole, // 🚨 Role can be overwritten by payload
+        isAdmin: userSettings.isAdmin || (effectiveRole === 'admin') // 🚨 isAdmin can be set by payload
       }
     });
     
